@@ -13,6 +13,11 @@ public class Throw : MonoBehaviour
     public GameObject arrowOG;
     public GameObject arrowPL;
 
+    private const int MAX_ANGLE = 10;
+    private const int MAX_Z = 7;
+    private const float ANGLE_DELTA = 5f;
+    private const float Z_DELTA = 5f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -57,24 +62,53 @@ public class Throw : MonoBehaviour
                 }
             }
             // 角度とか位置を弄る部分
-            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            else if (Input.GetKey(KeyCode.LeftArrow))
             {
-                if (select_pos && this.transform.position.z <= 8)
-                    this.transform.Translate(0.0f,0.0f,1.0f);
-                else if (!select_pos && this.transform.localEulerAngles.y > -20)
-                    this.transform.Rotate(new Vector3(0.0f, -1.5f, 0.0f));
+                if (select_pos && this.transform.position.z <= MAX_Z)
+                    this.transform.Translate(0.0f, 0.0f, Z_DELTA * Time.deltaTime);
+                else if (!select_pos && Range() != 2)
+                {
+                    this.transform.Rotate(new Vector3(0.0f, -ANGLE_DELTA * Time.deltaTime, 0.0f));
+                }
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            else if (Input.GetKey(KeyCode.RightArrow))
             {
-                if (select_pos && this.transform.position.z >= -8)
-                    this.transform.Translate(0.0f,0.0f,-1.0f);
-                else if (!select_pos && this.transform.localEulerAngles.y < 20)
-                    this.transform.Rotate(new Vector3(0.0f, 1.5f, 0.0f));
+                if (select_pos && this.transform.position.z >= -MAX_Z)
+                    this.transform.Translate(0.0f, 0.0f, -Z_DELTA * Time.deltaTime);
+                else if (!select_pos && Range() != 1)
+                {
+                    this.transform.Rotate(new Vector3(0.0f, ANGLE_DELTA * Time.deltaTime, 0.0f));
+                }
             }
         }
         else
         {
 
+        }
+    }
+
+    private int Range()
+    {
+        float theta = this.transform.localEulerAngles.y;
+        if (360 - MAX_ANGLE <= theta && theta <= 360)
+        {
+            return 0;
+        }
+        else if (0 <= theta && theta <= MAX_ANGLE)
+        {
+            return 0;
+        }
+        else if (MAX_ANGLE <= theta && theta <= 180)
+        {
+            return 1;
+        }
+        else if (180 <= theta && theta <= 360 - MAX_ANGLE)
+        {
+            return 2;
+        }
+        else {
+            // UNREACHABLE CODE
+            return 3;
         }
     }
 }
