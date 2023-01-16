@@ -1,17 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class Throw : MonoBehaviour
 {
     public GameObject ballPrefab;
     private Manager manager;
-    public float shotSpeed;
+    private const float COUNT_TIME = 5.0f;
+    private float countTime;
 
     private bool select_pos;
 
     public GameObject arrowOG;
     public GameObject arrowPL;
+    public TextMeshProUGUI countDown;
+    public GameObject Meter;
+    private Slider slider;
 
     private const int MAX_ANGLE = 10;
     private const int MAX_Z = 7;
@@ -26,28 +32,24 @@ public class Throw : MonoBehaviour
         manager = GameObject.Find("Manager").GetComponent<Manager>();
         arrowOG.SetActive(true);
         arrowPL.SetActive(false);
+        countDown.enabled = false;
+        countTime = COUNT_TIME;
+        slider = Meter.GetComponent<Slider>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (manager.CanThrow()) {
-            // クリックで発射
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                GameObject ball = (GameObject)Instantiate(ballPrefab, transform.position, Quaternion.identity);
-                Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-                ballRb.AddForce(transform.right * shotSpeed/*, ForceMode.Impulse*/);
-                manager.ThrowStart(ball);
-                Debug.Log("Throw!");
-            }
-            // Rでリスタート?
-            else if (Input.GetKeyDown(KeyCode.R))
-            {
-                // TODO:後で書く
-            }
+        if (manager.CanThrow()&& Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            countTime = COUNT_TIME;
+            manager.SpeakStart();
+            Debug.Log("Speak!");
+        }
+        else if (manager.GetState() == State.Prepare)
+        {
             // 右クリで位置の方向設定入れ替え
-            else if (Input.GetKeyDown(KeyCode.Mouse1))
+            if (Input.GetKeyDown(KeyCode.Mouse1))
             {
                 select_pos = !select_pos;
                 if (select_pos)
@@ -81,9 +83,23 @@ public class Throw : MonoBehaviour
                 }
             }
         }
-        else
+        else if (manager.GetState() == State.Speaking)
         {
-
+            countDown.enabled = true;
+            countTime -= Time.deltaTime;
+            if (countTime <= 0)
+            {
+                GameObject ball = (GameObject)Instantiate(ballPrefab, transform.position, Quaternion.identity);
+                Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+                ballRb.AddForce(transform.right * slider.value/*, ForceMode.Impulse*/);
+                manager.ThrowStart(ball);
+                Debug.Log("Throw!");
+                countDown.enabled = false;
+            }
+            else {
+                countDown.text = $"Time: {countTime:f2}\nHARAKARA  KOEDASE!";
+                
+            }
         }
     }
 

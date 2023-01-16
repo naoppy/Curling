@@ -2,9 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum State {
+    Prepare,
+    Speaking,
+    Throwing,
+}
+
 public class Manager : MonoBehaviour
 {
-    private bool is_throwing;
+    private State state;
     private int throwed_cnt;
     private const int THROW_TIME = 3;
     private const float EPS = 1E-20f;
@@ -16,7 +22,8 @@ public class Manager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        is_throwing = false;
+        state = State.Prepare;
+        
         throwed_cnt = 0;
         stones = new List<GameObject>();
     }
@@ -24,7 +31,7 @@ public class Manager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (is_throwing) {
+        if (state == State.Throwing) {
             // 終了条件：少なくとも2秒は経過＆全ての石が止まればよい
             if (Time.time - last_throw_time > 2) {
                 bool allstop = true;
@@ -71,11 +78,19 @@ public class Manager : MonoBehaviour
         Debug.Log(score);
     }
 
+    public void SpeakStart()
+    {
+        if (state == State.Prepare)
+        {
+            state = State.Speaking;
+        }
+    }
+
     public void ThrowStart(GameObject stone)
     {
-        if ((!is_throwing) && throwed_cnt < THROW_TIME)
+        if (state == State.Speaking && throwed_cnt < THROW_TIME)
         {
-            is_throwing = true;
+            state = State.Throwing;
             stones.Add(stone);
             last_throw_time = Time.time;
             Debug.Log("Start Throw in Manager");
@@ -84,16 +99,21 @@ public class Manager : MonoBehaviour
 
     public void ThrowStop()
     {
-        if (is_throwing)
+        if (state == State.Throwing)
         {
             throwed_cnt++;
-            is_throwing = false;
+            state = State.Prepare;
             Debug.Log("Stop Throw in Manager");
         }
     }
 
     public bool CanThrow()
     {
-        return (!is_throwing) && throwed_cnt < THROW_TIME;
+        return state == State.Prepare && throwed_cnt < THROW_TIME;
+    }
+
+    public State GetState()
+    {
+        return this.state;
     }
 }
