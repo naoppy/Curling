@@ -10,12 +10,17 @@ public class Throw : MonoBehaviour
 
     private bool select_pos;
 
+    public GameObject arrowOG;
+    public GameObject arrowPL;
+
 
     // Start is called before the first frame update
     void Start()
     {
         select_pos = true;
         manager = GameObject.Find("Manager").GetComponent<Manager>();
+        arrowOG.SetActive(true);
+        arrowPL.SetActive(false);
     }
 
     // Update is called once per frame
@@ -37,17 +42,30 @@ public class Throw : MonoBehaviour
                 // TODO:後で書く
             }
             // 右クリで位置の方向設定入れ替え
-            else if (Input.GetKeyDown(KeyCode.Mouse1)) {
+            else if (Input.GetKeyDown(KeyCode.Mouse1))
+            {
                 select_pos = !select_pos;
+                if (select_pos)
+                {
+                    arrowOG.SetActive(true);
+                    arrowPL.SetActive(false);
+                }
+                else
+                {
+                    arrowOG.SetActive(false);
+                    arrowPL.SetActive(true);
+                }
             }
             // 角度とか位置を弄る部分
-            else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
+            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
                 if (select_pos && this.transform.position.z <= 8)
                     this.transform.Translate(0.0f,0.0f,1.0f);
                 else if (!select_pos && this.transform.localEulerAngles.y > -20)
                     this.transform.Rotate(new Vector3(0.0f, -1.5f, 0.0f));
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow)) {
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
                 if (select_pos && this.transform.position.z >= -8)
                     this.transform.Translate(0.0f,0.0f,-1.0f);
                 else if (!select_pos && this.transform.localEulerAngles.y < 20)
