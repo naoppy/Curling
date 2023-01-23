@@ -44,7 +44,6 @@ public class Throw : MonoBehaviour
         {
             countTime = COUNT_TIME;
             manager.SpeakStart();
-            Debug.Log("Speak!");
         }
         else if (manager.GetState() == State.Prepare)
         {
@@ -91,9 +90,11 @@ public class Throw : MonoBehaviour
             {
                 GameObject ball = (GameObject)Instantiate(ballPrefab, transform.position, Quaternion.identity);
                 Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-                ballRb.AddForce(transform.right * slider.value/*, ForceMode.Impulse*/);
+                int base_speed = 1500;
+                float max_speed = slider.maxValue;
+                float speed = base_speed + (max_speed - base_speed) * slider.value / max_speed;
+                ballRb.AddForce(transform.right * speed/*, ForceMode.Impulse*/);
                 manager.ThrowStart(ball);
-                Debug.Log("Throw!");
                 countDown.enabled = false;
             }
             else {
